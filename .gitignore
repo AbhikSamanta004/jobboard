@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Environment files
+.env
+backend/.env
+
+# Build output
+dist/
+.vite/
+
+# Editor / OS files
+.DS_Store
+.vscode/
