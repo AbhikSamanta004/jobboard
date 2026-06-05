@@ -62,7 +62,7 @@ jobs:
           set -e
           cmd="npx vercel@latest deploy --prod --yes"
           if [ -n "$VERCEL_PROJECT_ID" ] && [ -n "$VERCEL_ORG_ID" ]; then
-            cmd="$cmd --project $VERCEL_PROJECT_ID --org $VERCEL_ORG_ID"
+            cmd="$cmd --project $VERCEL_PROJECT_ID --scope $VERCEL_ORG_ID"
           elif [ -n "$VERCEL_PROJECT_ID" ] && [ -z "$VERCEL_ORG_ID" ]; then
             echo "Warning: VERCEL_PROJECT_ID set without VERCEL_ORG_ID; skipping explicit project flag."
           fi
