@@ -253,5 +253,3 @@ AI was utilized to accelerate the engineering of this application:
 * **Component Architecture Planning**: Designing context bindings to coordinate state across candidate search lists and recruiter applicants panels.
 * **Workflow Automation**: Writing the `.github/workflows/deploy.yml` and `vercel.json` routing configurations.
 * **Seed Mocking**: Developing clean mock data structures for database initialization.
-#   j o b b o a r d  
- 

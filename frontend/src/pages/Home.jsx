@@ -15,11 +15,12 @@ export default function Home() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const response = await fetch(
-          window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:5000/api/jobs'
-            : '/api/jobs'
-        );
+        const apiBase = import.meta.env.VITE_API_BASE_URL ||
+          (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000/api'
+            : '/api');
+
+        const response = await fetch(`${apiBase}/jobs`);
         const data = await response.json();
         if (data.success) {
           // Get first 3 jobs
