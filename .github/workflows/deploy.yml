@@ -57,11 +57,14 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
         run: |
           set -e
           cmd="npx vercel@latest deploy --prod --yes"
-          if [ -n "$VERCEL_PROJECT_ID" ]; then
-            cmd="$cmd --project $VERCEL_PROJECT_ID"
+          if [ -n "$VERCEL_PROJECT_ID" ] && [ -n "$VERCEL_ORG_ID" ]; then
+            cmd="$cmd --project $VERCEL_PROJECT_ID --org $VERCEL_ORG_ID"
+          elif [ -n "$VERCEL_PROJECT_ID" ] && [ -z "$VERCEL_ORG_ID" ]; then
+            echo "Warning: VERCEL_PROJECT_ID set without VERCEL_ORG_ID; skipping explicit project flag."
           fi
           echo "Running: $cmd"
           eval $cmd
