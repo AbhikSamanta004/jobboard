@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Deploy to Vercel
+name: CI/CD Pipeline
 
 on:
   push:
@@ -13,27 +13,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-size: 20
+          node-version: 20
           cache: 'npm'
 
-      - name: Install Monorepo Dependencies
+      - name: Install Dependencies
         run: npm run install-all
 
-      - name: Validate Backend Compile
-        run: |
-          cd backend
-          node --check index.js
+      - name: Validate Backend
+        working-directory: backend
+        run: node --check index.js
 
-      - name: Build Frontend Application
-        run: |
-          cd frontend
-          npm run build
+      - name: Build Backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Run Tests
+        run: npm test --if-present
 
   deploy:
     needs: build-and-test
@@ -41,14 +44,34 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./
+      - name: Check required secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then echo "::error::Missing VERCEL_TOKEN"; exit 1; fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Frontend to Vercel
+        working-directory: frontend
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -e
+          cmd="npx vercel@latest deploy --prod --yes"
+          if [ -n "$VERCEL_PROJECT_ID" ]; then
+            cmd="$cmd --project $VERCEL_PROJECT_ID"
+          fi
+          echo "Running: $cmd"
+          eval $cmd
+
+      - name: Trigger Render Deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Skipping Render deploy: RENDER_DEPLOY_HOOK_URL not set"
+            exit 0
+          fi
+          curl -sS -X POST "$RENDER_DEPLOY_HOOK_URL"
