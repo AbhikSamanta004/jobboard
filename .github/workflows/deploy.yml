@@ -1,79 +1,79 @@
-name: CI/CD Pipeline
+  name: CI/CD Pipeline
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  jobs:
+    build-and-test:
+      runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+      steps:
+        - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm run install-all
+        - name: Install Dependencies
+          run: npm run install-all
 
-      - name: Validate Backend
-        working-directory: backend
-        run: node --check index.js
+        - name: Validate Backend
+          working-directory: backend
+          run: node --check index.js
 
-      - name: Build Backend
-        working-directory: backend
-        run: npm run build
+        - name: Build Backend
+          working-directory: backend
+          run: npm run build
 
-      - name: Build Frontend
-        working-directory: frontend
-        run: npm run build
+        - name: Build Frontend
+          working-directory: frontend
+          run: npm run build
 
-      - name: Run Tests
-        run: npm test --if-present
+        - name: Run Tests
+          run: npm test --if-present
 
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    deploy:
+      needs: build-and-test
+      runs-on: ubuntu-latest
+      if: github.ref == 'refs/heads/main'
 
-    steps:
-      - uses: actions/checkout@v4
+      steps:
+        - uses: actions/checkout@v4
 
-      - name: Check required secrets
-        run: |
-          if [ -z "$VERCEL_TOKEN" ]; then echo "::error::Missing VERCEL_TOKEN"; exit 1; fi
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        - name: Check required secrets
+          run: |
+            if [ -z "$VERCEL_TOKEN" ]; then echo "::error::Missing VERCEL_TOKEN"; exit 1; fi
+          env:
+            VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy Frontend to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-        run: |
-          set -e
-          cmd="npx vercel@latest deploy frontend --prod --yes"
-          if [ -n "$VERCEL_PROJECT_ID" ] && [ -n "$VERCEL_ORG_ID" ]; then
-            cmd="$cmd --project $VERCEL_PROJECT_ID --scope $VERCEL_ORG_ID"
-          elif [ -n "$VERCEL_PROJECT_ID" ] && [ -z "$VERCEL_ORG_ID" ]; then
-            echo "Warning: VERCEL_PROJECT_ID set without VERCEL_ORG_ID; skipping explicit project flag."
-          fi
-          echo "Running: $cmd"
-          eval $cmd
+        - name: Deploy Frontend to Vercel
+          env:
+            VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+            VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+            VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          run: |
+            set -e
+            cmd="npx vercel@latest deploy --prod --yes"
+            if [ -n "$VERCEL_PROJECT_ID" ] && [ -n "$VERCEL_ORG_ID" ]; then
+              cmd="$cmd --project $VERCEL_PROJECT_ID --scope $VERCEL_ORG_ID"
+            elif [ -n "$VERCEL_PROJECT_ID" ] && [ -z "$VERCEL_ORG_ID" ]; then
+              echo "Warning: VERCEL_PROJECT_ID set without VERCEL_ORG_ID; skipping explicit project flag."
+            fi
+            echo "Running: $cmd"
+            eval $cmd
 
-      - name: Trigger Render Deploy
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "Skipping Render deploy: RENDER_DEPLOY_HOOK_URL not set"
-            exit 0
-          fi
-          curl -sS -X POST "$RENDER_DEPLOY_HOOK_URL"
+        - name: Trigger Render Deploy
+          env:
+            RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          run: |
+            if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+              echo "Skipping Render deploy: RENDER_DEPLOY_HOOK_URL not set"
+              exit 0
+            fi
+            curl -sS -X POST "$RENDER_DEPLOY_HOOK_URL"
