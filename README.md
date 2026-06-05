@@ -6,7 +6,7 @@ A production-quality full-stack Job Board application designed with a premium mo
 
 ## Project Overview
 
-JobX is a complete job matchmaking portal designed with dedicated workspaces for Candidates (to manage resume profiles, search matching listings, bookmark posts, and submit applications) and Recruiters (to post vacancies, manage applicant pipelines, screen portfolios, and review recruitment funnel statistics).
+JobX is a complete job matchmaking portal designed with dedicated workspaces for Candidates (to manage resume profiles, search matching listings, bookmark posts, and submit applications) and Recruiters (to post vacancies, manage applicant pipelines, screen portfolios, and  review recruitment funnel statistics).
 
 ---
 
