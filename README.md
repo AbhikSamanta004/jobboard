@@ -57,15 +57,15 @@ Add your real links for CI and Vercel badges above.
 ## Screenshots
 
 #### Home Page
-![Home](frontend\public\screenshots\dashboard.png)
+![Home](frontend/public/screenshots/dashboard.png)
 
 #### Recruiter Dashboard
-![Recruiter Dashboard](frontend\public\screenshots\recdashboard.png)
+![Recruiter Dashboard](frontend/public/screenshots/recdashboard.png)
 
 *Recruiter can post jobs, manage applicants, and track hiring pipeline.*
 
 #### Candidate Dashboard
-![Candidate Dashboard](frontend\public\screenshots\candashboard.png)
+![Candidate Dashboard](frontend/public/screenshots/candashboard.png)
 
 *Candidate can search jobs, filter jobs, get notification of new jobs, apply, and track application status.*
 
